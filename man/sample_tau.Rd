@@ -31,7 +31,7 @@ sample_tau(RVM, udata, STAN = STAN_model, iter_w = 150, iter_s = 2000, init = 0.
   Range or values for initial values for each Markov chain. (Default is \code{0.8}.)
 }
   \item{s_bound}{
-  Bound for Kendall's tau for all pair copulas in the R-Vine. If a pair copula can model positive and negative dependence, Kendall'S tau can be sampled in \code{[-s_bound, s_bound]}. If a pair copula can only model positive dependence, Kendall'S tau can be sampled in \code{[0, s_bound]}. If a pair copula can only model negative dependence, Kendall'S tau can be sampled in \code{[-s_bound, 0]}. (Default is \code{0.95}.)
+  Bound for Kendall's tau for all pair copulas in the R-Vine. If a pair copula can model positive and negative dependence, Kendall's tau can be sampled in \code{[-s_bound, s_bound]}. If a pair copula can only model positive dependence, Kendall's tau can be sampled in \code{[0, s_bound]}. If a pair copula can only model negative dependence, Kendall's tau can be sampled in \code{[-s_bound, 0]}. (Default is \code{0.95}.)
 }
   \item{refresh_s}{
   Number of iterations at which a message is printed. (Default is \code{100}.)
