@@ -1,15 +1,13 @@
 library(cmdstanr)
 
-STAN_model <- cmdstan_model("STAN.stan")
-
 ###############################################################################
 # functions needed for sample_tau function
 ###############################################################################
 normalizeRVineMatrix <- function(RVM) {
-  
+
   oldOrder <- diag(RVM$Matrix)
   Matrix <- reorderRVineMatrix(RVM$Matrix)
-  
+
   return(RVineMatrix(Matrix,
                      RVM$family,
                      RVM$par,
@@ -19,12 +17,12 @@ normalizeRVineMatrix <- function(RVM) {
 }
 
 reorderRVineMatrix <- function(Matrix, oldOrder = NULL) {
-  
+
   if (length(oldOrder) == 0) {
     oldOrder <- diag(Matrix)
   }
   O <- apply(t(1:nrow(Matrix)), 2, "==", Matrix)
-  
+
   for (i in 1:nrow(Matrix)) {
     Matrix[O[, oldOrder[i]]] <- nrow(Matrix) - i + 1
   }
@@ -32,22 +30,23 @@ reorderRVineMatrix <- function(Matrix, oldOrder = NULL) {
 }
 
 ##################################################################################################
-sample_tau = function(RVM, udata, STAN = STAN_model, iter_w = 150, iter_s = 2000, init = 0.8, s_bound = 0.95, refresh_s = 100, adapt_delta_s = 0.8){
-  
+sample_tau = function(RVM, udata, iter_w = 150, iter_s = 2000, init = 0.8, s_bound = 0.95, refresh_s = 100, adapt_delta_s = 0.8){
+
+  STAN <- cmdstan_model("STAN.stan")
   n <- nrow(udata)
   d <- dim(RVM$Matrix)[1]
-  
+
   o <- diag(RVM$Matrix)
   if (any(o != length(o):1)) {
     oldRVM   <- RVM
     RVM      <- normalizeRVineMatrix(RVM)
     udata <- udata[, o[length(o):1]]
   }
-  
+
   #############
   ## From the package: the different parameters/inputs we need)
   #############
-  
+
   family <- as.vector(RVM$family)
   family[is.na(family)] <- 0
   par2 <- as.vector(RVM$par2)
@@ -60,11 +59,11 @@ sample_tau = function(RVM, udata, STAN = STAN_model, iter_w = 150, iter_s = 2000
   maxmat[is.na(maxmat)] <- 0
   condirect[is.na(condirect)]     <- 0
   conindirect[is.na(conindirect)] <- 0
-  
+
   famvec <- famVector(RVM)
   L_bound   <- c()
   U_bound   <- c()
-  
+
   for (i in 1:(d*(d-1)/2)) {
     if (famvec[i] %in% c(3, 13, 4, 14, 6, 16)) {
       L_bound[i]   <- 0
@@ -77,11 +76,11 @@ sample_tau = function(RVM, udata, STAN = STAN_model, iter_w = 150, iter_s = 2000
       U_bound[i]   <- s_bound
     }
   }
-  
+
   #############
   ## Sample from STAN
   #############
-  
+
   x_grid <- c(-10^(5:2), seq(-36, 36, l = 100), 10^(2:5))
   # frankTauVals <- 1 - 4/frankParGrid + 4/frankParGrid * copula::debye1(frankParGrid)
   y_grid <- c(-0.99996000, -0.99960007, -0.99600658, -0.96065797, -0.89396585, -0.89188641, -0.88972402, -0.88747361,
@@ -98,15 +97,15 @@ sample_tau = function(RVM, udata, STAN = STAN_model, iter_w = 150, iter_s = 2000
                0.85103114,  0.85494133,  0.85865252,  0.86217942,  0.86553538,  0.86873246,  0.87178163,  0.87469288,
                0.87747533,  0.88013730,  0.88268644,  0.88512973,  0.88747361,  0.88972402,  0.89188641,  0.89396585,
                0.96065797,  0.99600658,  0.99960007,  0.99996000)
-  
+
   data_stan <- list(n=n, d=d, L_bound=L_bound, U_bound=U_bound, para2=par2, udata=udata,
                  family=as.integer(family), maxmat=as.integer(maxmat), matri=as.integer(matri),
                  condirect=as.integer(condirect), conindirect=as.integer(conindirect),
                  x_grid=x_grid, y_grid=y_grid)
-  
+
   fit <- STAN$sample(iter_warmup = iter_w, iter_sampling = iter_s, refresh = refresh_s,
-                     data=data_stan, seed = 317, chains = 4, parallel_chains = 4, 
+                     data=data_stan, seed = 317, chains = 4, parallel_chains = 4,
                      save_warmup = TRUE, adapt_delta = adapt_delta_s, init = init)
-  
+
   return(fit)
 }

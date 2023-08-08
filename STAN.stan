@@ -86,7 +86,7 @@ real frankF(real par, data vector x_grid, data vector y_grid){
     return franktau;
 }
 
-real tauF(real par){
+real joeF(real par){
     real param1;
     real tem;
     real tau;
@@ -101,23 +101,16 @@ real tauF(real par){
 vector system_frank(vector y, vector tau, data vector x_grid, data vector y_grid){
     vector[1] ftau = tau;
     vector[1] par;
-    // real a = 1;
-    //
-    // if(tau[1] < 0) {
-    //   a = -1;
-    //   ftau[1] = -tau[1];
-    // }
 
     par[1] = ftau[1] - frankF(y[1], x_grid, y_grid);
 
-    // return a*par;
     return par;
 }
 
 vector system_joe(vector y, vector tau){
     vector[1] par;
 
-    par[1] = tau[1] - tauF(y[1]);
+    par[1] = tau[1] - joeF(y[1]);
 
     return par;
 }

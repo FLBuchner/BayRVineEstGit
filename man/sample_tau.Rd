@@ -18,9 +18,6 @@ sample_tau(RVM, udata, STAN = STAN_model, iter_w = 150, iter_s = 2000, init = 0.
   \item{udata}{
   Copula data.
 }
-  \item{STAN}{
-  A Stan model. (Default is a Stan model that estimates Kendall's tau for any R-Vine.)
-}
   \item{iter_w}{
   Number of warmup iterations per Markov chain. (Default is \code{150}.)
 }
